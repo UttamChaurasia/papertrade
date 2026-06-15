@@ -6,7 +6,7 @@ export class RedisService {
   private client: Redis;
 
   constructor() {
-    this.client = new Redis(process.env.REDIS_URL);
+    this.client = new Redis(process.env.REDIS_URL as string);
   }
   async get(key: string): Promise<string | null> {
     return this.client.get(key);
@@ -55,7 +55,7 @@ export class RedisService {
     const results = await this.client.zrevrange('leaderboard', 0, top - 1, 'WITHSCORES');
   
   //parseing pair
-  const parsed = [];
+  const parsed: { userId: string; portfolioValue: number; rank: number }[] = [];
   for(let i =0; i < results.length; i += 2){
     parsed.push({ userId: results[i], portfolioValue: parseFloat(results[i + 1]), rank: Math.floor(i/2) + 1 });
     
