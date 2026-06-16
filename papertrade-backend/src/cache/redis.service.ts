@@ -1,18 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable,OnModuleDestroy  } from '@nestjs/common';
 import Redis from 'ioredis';
 
 @Injectable()
-export class RedisService {
+export class RedisService implements OnModuleDestroy {
   private client: Redis;
 
   constructor() {
     this.client = new Redis(process.env.REDIS_URL as string);
+
+    this.client.on('connect', () => console.log('Redis connected ✅'));
+    this.client.on('error', (err) => console.error('Redis error ❌', err));
+
   }
   async get(key: string): Promise<string | null> {
     return this.client.get(key);
   }
   async setex(key: string, ttlSeconds: number, value:string) {
     return this.client.setex(key, ttlSeconds, value);
+  }
+  async del(key: string): Promise<void> {
+    await this.client.del(key);
   }
 
   //P-1:Price cache
@@ -72,6 +79,10 @@ export class RedisService {
     const misses = parseInt(await this.client.get('cache:miss') || '0');
     const total = hits + misses;
     return total === 0 ? 0 : Math.round((hits / total) * 100);
+  }
+
+  onModuleDestroy() {
+    this.client.disconnect();
   }
  
 }
