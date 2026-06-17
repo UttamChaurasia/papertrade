@@ -43,7 +43,7 @@ export class StocksService {
 
         let url: string;
         if(interval === 'daily'){
-            url = `${this.AV_BASE}?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${this.API_KEY}`;
+            url = `${this.AV_BASE}?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=compact&apikey=${this.API_KEY}`;
 
         } else {
             url = `${this.AV_BASE}?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=${this.API_KEY}`;
@@ -53,7 +53,8 @@ export class StocksService {
         const candles = this.parseCandles(response.data, interval);
 
         if (!candles.length) {
-            throw new NotFoundException(`No candle data for ${symbol}`);
+            console.log(`Alpha Vantage response:`, JSON.stringify(response.data));
+            return [];
         }
 
         const ttl = interval === 'daily' ? 3600 : 300;
