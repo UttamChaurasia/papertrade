@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, UseCallback } from 'react'
-import { createChart } from 'lightweight-charts'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { createChart, CandlestickSeries } from 'lightweight-charts'
 
 export default function ChartReplay({ symbol, allCandles }) {
     const chartRef = useRef(null)
@@ -25,7 +25,7 @@ export default function ChartReplay({ symbol, allCandles }) {
         })
 
         chartObj.current = chart
-        const series = chart.addCandlestickSeries({
+        const series = chart.addSeries(CandlestickSeries, {
             upColor: '#3FB950', downColor: '#F78166',
             borderUpColor: '#3FB950', borderDownColor: 'F78166',
             wickUpColor: '#3FB950', wickDownColor: 'F78166',

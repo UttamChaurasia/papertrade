@@ -56,11 +56,11 @@ export default function CandlestickChart({ symbol, interval = 'daily' }) {
   const fetchCandles = async () => {
   setLoading(true)
   try {
-    const res = await fetch(
+    const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/stocks/candles/${symbol}?interval=${interval}`,
       { headers: { Authorization: `Bearer ${getToken()}` } }
     )
-    const candles = await res.json()
+    const candles = await response.json()
 
     if (Array.isArray(candles) && candles.length>0){
         candleSeriesRef.current?.setData(candles)

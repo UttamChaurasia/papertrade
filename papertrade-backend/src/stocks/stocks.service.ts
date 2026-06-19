@@ -49,7 +49,13 @@ export class StocksService {
             url = `${this.AV_BASE}?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=${this.API_KEY}`;
         }
 
-        const response = await axios.get(url);
+        let response;
+        try {
+            response = await axios.get(url);
+        } catch (error) {
+            console.log(`Alpha Vantage API error for ${symbol}:${interval} ->`, error.code);
+            throw new Error(`Alpha Vantage rate limit hit. Try again tomorrow or use daily interval.`);
+        }
         const candles = this.parseCandles(response.data, interval);
 
         if (!candles.length) {
@@ -96,7 +102,9 @@ export class StocksService {
 
     return Object.entries(series)
       .map(([time, values]: [string, any]) => ({
-        time,
+        time: interval === 'daily'
+            ? time
+            : Math.floor(new Date(time).getTime() / 1000),
         open:   parseFloat(values['1. open']),
         high:   parseFloat(values['2. high']),
         low:    parseFloat(values['3. low']),
