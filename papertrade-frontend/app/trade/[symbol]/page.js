@@ -8,9 +8,6 @@ import apiClient from '@/lib/api'
 
 const INTERVALS = [
     { label: '1D', value: 'daily' },
-    { label: '60m', value: '60min' },
-    { label: '30m', value: '30min' },
-    { label: '5m', value: '5min' },
 ]
 export default function TradePage() {
     const { symbol } = useParams()
