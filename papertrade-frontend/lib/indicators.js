@@ -1,7 +1,21 @@
+// EMA - exponential moving average
+export function calculateEMA(candles, period) {
+    const result = []
+    const k = 2 / (period + 1)
+    const firstSlice = candles.slice(0, period)
+    let ema = firstSlice.reduce((s, c) => s + c.close, 0) / period
+    result.push({ time: candles[period - 1].time, value: ema })
+    for (let i = period; i < candles.length; i++) {
+        ema = candles[i].close * k + ema * (1 - k)
+        result.push({ time: candles[i].time, value: ema })
+    }
+    return result
+}
 // SMA-simple moving average
 export function calculateSMA(candles, period) {
     const result = []
-    for (let i=period-1; i<candles.length; i++){
+    for
+    (let i=period-1; i<candles.length; i++){
         const slice = candles.slice(i-period+1, i+1)
         const sum = slice.reduce((acc, c) => acc + c.close, 0)
         result.push({ time: candles[i].time, value: sum/period })
