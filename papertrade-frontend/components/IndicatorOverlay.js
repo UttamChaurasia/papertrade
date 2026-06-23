@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import { createChart } from 'lightweight-charts'
+import { createChart, CandlestickSeries, LineSeries } from 'lightweight-charts'
 import {
     calculateSMA,
     calculateEMA,
@@ -21,7 +21,7 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
         const chart = createChart(mainChartRef.current, {
             height: 380,
             layout: {
-                background: { bottomColor: '#0D1117'},
+                background: { color: '#0D1117'},
                 textColor: '#C9D1D9',
             },
             grid: {
@@ -32,7 +32,7 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
         mainChart.current = chart
 
         //candlestick base series
-        const candleSeries = chart.addCandlestickSeries({
+        const candleSeries = chart.addSeries(CandlestickSeries, {
             upColor: '#3FB950',
             downColor: '#F78166',
             borderUpColor: '#3FB950',
@@ -44,16 +44,16 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
 
         //SMA 20 overlay
         if (activeIndicators.includes('SMA20')) {
-            const sma20Series = chart.addLineSeries({
+            const sma20Series = chart.addSeries(LineSeries, {
                 color: '#58A6FF',
                 lineWidth: 1,
             })
-            sma20Series.setDtata(calculateSMA(candles, 20))
+            sma20Series.setData(calculateSMA(candles, 20))
         }
 
         //SMA 50 overlay
         if (activeIndicators.includes('SMA50')) {
-            const sma50Series = chart.addLineSeries({
+            const sma50Series =chart.addSeries(LineSeries, {
                 color: '#E3B341',
                 lineWidth: 1,
             })
@@ -62,7 +62,7 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
 
         //EMA 20 overlay
         if (activeIndicators.includes('EMA20')) {
-            const emaSeries = chart.addLineSeries({
+            const emaSeries =chart.addSeries(LineSeries, {
                 color: '#BC8CFF',
                 lineWidth: 1,
             })
@@ -73,9 +73,9 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
         if (activeIndicators.includes('BB')) {
             const bb = calculateBollingerBands(candles)
 
-            const upperSeries = chart.addLineSeries({ color: '#F78166', lineWidth: 1})
-            const midSeries = chart.addLineSeries({ color: '#8B949E', lineWidth: 1})
-            const lowerSeries = chart.addLineSeries({ color: '#F78166', lineWidth: 1})
+            const upperSeries = chart.addSeries(LineSeries,{ color: '#F78166', lineWidth: 1})
+            const midSeries = chart.addSeries(LineSeries,{ color: '#8B949E', lineWidth: 1})
+            const lowerSeries = chart.addSeries(LineSeries,{ color: '#F78166', lineWidth: 1})
 
             upperSeries.setData(bb.upper)
             midSeries.setData(bb.middle)
@@ -86,7 +86,7 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
 
         //RSI sub-chart
         if (activeIndicators.includes('RSI') && rsiChartRef.current) {
-            const rsiC = ccreateChart(rsiChartRef.current, {
+            const rsiC = createChart(rsiChartRef.current, {
                 height: 120,
                 layout: {
                     background: { color: '#0D1117' },
@@ -103,15 +103,15 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
             rsiChart.current = rsiC
 
             //rsi line
-            const rsiSeries = rsiC.addLineSeries({ color: '#BC8CFF', lineWidth: 1 })
+            const rsiSeries = rsiC.chart.addSeries(LineSeries, { color: '#BC8CFF', lineWidth: 1 })
             rsiSeries.setData(calculateRSI(candles))
 
             // Overbought line at 70 (red)
-            const ob = rsiC.addLineSeries({ color: '#F78166', lineWidth: 1 })
+            const ob = rsiC.chart.addSeries(LineSeries, { color: '#F78166', lineWidth: 1 })
             ob.setData(candles.map(c => ({ time: c.time, value: 70 })))
 
             // Oversold line at 30 (green)
-            const os = rsiC.addLineSeries({ color: '#3FB950', lineWidth: 1 })
+            const os = rsiC.chart.addSeries(LineSeries, { color: '#3FB950', lineWidth: 1 })
             os.setData(candles.map(c => ({ time: c.time, value: 30 })))
         }
 
