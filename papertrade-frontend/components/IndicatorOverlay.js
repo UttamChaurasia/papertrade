@@ -1,12 +1,12 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import { createChart } from 'lightweight-charts'
-import { 
+import {
     calculateSMA,
     calculateEMA,
     calculateRSI,
     calculateBollingerBands,
-} from '../utils/indicators'
+} from '../lib/indicators'
 
 export default function IndicatorOverlay({ candles, activeIndicators }) {
     const mainChartRef = useRef(null)
@@ -45,7 +45,7 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
         //SMA 20 overlay
         if (activeIndicators.includes('SMA20')) {
             const sma20Series = chart.addLineSeries({
-                color: '#58A6FF'
+                color: '#58A6FF',
                 lineWidth: 1,
             })
             sma20Series.setDtata(calculateSMA(candles, 20))
