@@ -17,21 +17,19 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
     useEffect(() => {
         if (!mainChartRef.current || !candles?.length) return
 
-        //create chart
         const chart = createChart(mainChartRef.current, {
             height: 380,
             layout: {
-                background: { color: '#0D1117'},
+                background: { color: '#0D1117' },
                 textColor: '#C9D1D9',
             },
             grid: {
-                vertLines: { color: '#30363D'},
-                horzLines: { color: '#30363D'},
+                vertLines: { color: '#30363D' },
+                horzLines: { color: '#30363D' },
             },
         })
         mainChart.current = chart
 
-        //candlestick base series
         const candleSeries = chart.addSeries(CandlestickSeries, {
             upColor: '#3FB950',
             downColor: '#F78166',
@@ -42,49 +40,34 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
         })
         candleSeries.setData(candles)
 
-        //SMA 20 overlay
         if (activeIndicators.includes('SMA20')) {
-            const sma20Series = chart.addSeries(LineSeries, {
-                color: '#58A6FF',
-                lineWidth: 1,
-            })
-            sma20Series.setData(calculateSMA(candles, 20))
+            const sma20 = chart.addSeries(LineSeries, { color: '#58A6FF', lineWidth: 1 })
+            sma20.setData(calculateSMA(candles, 20))
         }
 
-        //SMA 50 overlay
         if (activeIndicators.includes('SMA50')) {
-            const sma50Series =chart.addSeries(LineSeries, {
-                color: '#E3B341',
-                lineWidth: 1,
-            })
-            sma50Series.setData(calculateSMA(candles, 50))
+            const sma50 = chart.addSeries(LineSeries, { color: '#E3B341', lineWidth: 1 })
+            sma50.setData(calculateSMA(candles, 50))
         }
 
-        //EMA 20 overlay
         if (activeIndicators.includes('EMA20')) {
-            const emaSeries =chart.addSeries(LineSeries, {
-                color: '#BC8CFF',
-                lineWidth: 1,
-            })
-            emaSeries.setData(calculateEMA(candles, 20))
+            const ema = chart.addSeries(LineSeries, { color: '#BC8CFF', lineWidth: 1 })
+            ema.setData(calculateEMA(candles, 20))
         }
 
-        //Bollinger Bands overlay
         if (activeIndicators.includes('BB')) {
             const bb = calculateBollingerBands(candles)
-
-            const upperSeries = chart.addSeries(LineSeries,{ color: '#F78166', lineWidth: 1})
-            const midSeries = chart.addSeries(LineSeries,{ color: '#8B949E', lineWidth: 1})
-            const lowerSeries = chart.addSeries(LineSeries,{ color: '#F78166', lineWidth: 1})
-
-            upperSeries.setData(bb.upper)
-            midSeries.setData(bb.middle)
-            lowerSeries.setData(bb.lower)
+            const upper = chart.addSeries(LineSeries, { color: '#F78166', lineWidth: 1 })
+            const mid   = chart.addSeries(LineSeries, { color: '#8B949E', lineWidth: 1 })
+            const lower = chart.addSeries(LineSeries, { color: '#F78166', lineWidth: 1 })
+            upper.setData(bb.upper)
+            mid.setData(bb.middle)
+            lower.setData(bb.lower)
         }
 
         chart.timeScale().fitContent()
 
-        //RSI sub-chart
+        // RSI sub-chart
         if (activeIndicators.includes('RSI') && rsiChartRef.current) {
             const rsiC = createChart(rsiChartRef.current, {
                 height: 120,
@@ -94,7 +77,7 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
                 },
                 grid: {
                     vertLines: { color: '#30363D' },
-                    horzLines: { color: '#30363D'},
+                    horzLines: { color: '#30363D' },
                 },
                 rightPriceScale: {
                     scaleMargins: { top: 0.1, bottom: 0.1 },
@@ -102,20 +85,16 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
             })
             rsiChart.current = rsiC
 
-            //rsi line
-            const rsiSeries = rsiC.chart.addSeries(LineSeries, { color: '#BC8CFF', lineWidth: 1 })
+            const rsiSeries = rsiC.addSeries(LineSeries, { color: '#BC8CFF', lineWidth: 1 })
             rsiSeries.setData(calculateRSI(candles))
 
-            // Overbought line at 70 (red)
-            const ob = rsiC.chart.addSeries(LineSeries, { color: '#F78166', lineWidth: 1 })
+            const ob = rsiC.addSeries(LineSeries, { color: '#F78166', lineWidth: 1 })
             ob.setData(candles.map(c => ({ time: c.time, value: 70 })))
 
-            // Oversold line at 30 (green)
-            const os = rsiC.chart.addSeries(LineSeries, { color: '#3FB950', lineWidth: 1 })
+            const os = rsiC.addSeries(LineSeries, { color: '#3FB950', lineWidth: 1 })
             os.setData(candles.map(c => ({ time: c.time, value: 30 })))
         }
 
-        //Cleanup
         return () => {
             chart.remove()
             rsiChart.current?.remove()
@@ -124,11 +103,13 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
 
     return (
         <div className="flex flex-col">
-            <div ref={mainChartRef} className="w-full"/>
+            <div ref={mainChartRef} className="w-full" />
 
-            {activeIndicators.includes('RSI') && (
-                <div ref={rsiChartRef} className="w-full mt-1"/>
-            )}
+            <div
+                ref={rsiChartRef}
+                className="w-full mt-1"
+                style={{ display: activeIndicators.includes('RSI') ? 'block' : 'none' }}
+            />
         </div>
     )
 }
