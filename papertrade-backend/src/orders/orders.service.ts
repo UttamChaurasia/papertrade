@@ -5,14 +5,14 @@ import {
 } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
-import { Order } from './order.schema'
+import { Order } from './orders.schema'
 import { User } from '../users/users.schema'
 import { RedisService } from '../cache/redis.service'
 import { StocksService } from '../stocks/stocks.service'
 import { CreateOrderDto } from './dto/create-order.dto'
 
 @Injectable()
-export class OrderService {
+export class OrdersService {
     constructor(
         @InjectModel(Order.name) private orderModel: Model<Order>,
         @InjectModel(User.name) private userModel: Model<User>,
