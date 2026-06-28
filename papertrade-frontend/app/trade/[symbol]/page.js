@@ -6,6 +6,7 @@ import CandlestickChart from '@/components/CandlestickChart'
 import ChartReplay from '@/components/ChartReplay'
 import IndicatorOverlay from '@/components/IndicatorOverlay'
 import apiClient from '@/lib/api'
+import OrderPanel from '@/components/OrderPanel'
 
 const INTERVALS = [
     { label: '1D', value: 'daily' },
@@ -86,7 +87,7 @@ export default function TradePage() {
 
             {activeTab === 'indicators' && (
                 <div className='flex gap-2 mb-4 flex-wrap'>
-                    {INDICATORS_OPTIONS.map(ind => (
+                    {INDICATOR_OPTIONS.map(ind => (
                         <button
                             key={ind}
                             onClick={() => toggleIndicator(ind)}
@@ -118,7 +119,7 @@ export default function TradePage() {
                 )}
 
                 {activeTab === 'indicators' && (
-                    loadingCandlles ? (
+                    loadingCandles ? (
                         <div className="text-blue-400 text-center py-20">
                             Loading candles...
                         </div>
@@ -129,6 +130,12 @@ export default function TradePage() {
                         />
                     )
                 )}
+            </div>
+            <div className="mt-4">
+                <OrderPanel
+                    symbol={symbol?.toUpperCase()}
+                    currentPrice={null}
+                />
             </div>
         </div>
     )
