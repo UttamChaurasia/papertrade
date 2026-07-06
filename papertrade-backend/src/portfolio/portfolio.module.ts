@@ -9,6 +9,7 @@ import { StocksModule } from '../stocks/stocks.module';
         MongooseModule.forFeature([{ name: Portfolio.name, schema: PortfolioSchema }]),
         StocksModule,
     ],
+    controllers: [PortfolioController],
     providers: [PortfolioService],
     exports: [PortfolioService],
 })
