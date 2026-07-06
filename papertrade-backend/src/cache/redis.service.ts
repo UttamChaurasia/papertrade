@@ -22,6 +22,14 @@ export class RedisService implements OnModuleDestroy {
     await this.client.del(key);
   }
 
+  // general purpose redis primitives
+  async incr(key: string): Promise<number> {
+    return this.client.incr(key);
+  }
+  async expire(key: string, ttlSeconds: number): Promise<void> {
+    await this.client.expire(key, ttlSeconds);
+  }
+
   //P-1:Price cache
   async getCachedPrice(symbol: string): Promise<number | null> {
     const cached = await this.client.get(`price:${symbol}`);
@@ -84,5 +92,5 @@ export class RedisService implements OnModuleDestroy {
   onModuleDestroy() {
     this.client.disconnect();
   }
- 
+
 }

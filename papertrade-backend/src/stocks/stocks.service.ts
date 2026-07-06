@@ -15,11 +15,11 @@ export class StocksService {
 
         const cached = await this.redisService.get(cacheKey);
         if (cached) {
-            console.log(`Cache HIT → ${symbol}`);
+            await this.redisService.trackCacheHit('hit');
             return parseFloat(cached);
         }
 
-        console.log(`Cache MISS -> calling API for ${symbol}`);
+        await this.redisService.trackCacheHit('miss');
         const url = `${this.AV_BASE}?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${this.API_KEY}`;
 
         const response = await axios.get(url);
@@ -37,10 +37,10 @@ export class StocksService {
         const cacheKey = `candles:${symbol}:${interval}`;
         const cached = await this.redisService.get(cacheKey);
         if (cached) {
-            console.log(`Candle cache HIT -> ${symbol}:${interval}`);
+            await this.redisService.trackCacheHit('hit');
             return JSON.parse(cached);
         }
-
+        await this.redisService.trackCacheHit('miss');
         let url: string;
         if(interval === 'daily'){
             url = `${this.AV_BASE}?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=compact&apikey=${this.API_KEY}`;
