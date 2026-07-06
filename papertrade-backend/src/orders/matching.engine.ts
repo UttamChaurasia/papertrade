@@ -94,9 +94,15 @@ export class MatchingEngine {
             sellOrder.filledQuantity >= sellOrder.quantity ? 'FILLED' : 'PARTIAL';
         await sellOrder.save();
 
-        await this.userModel.findByIdAndUpdate(buyOrder.userId, {
-            $inc: { balancePaise: -tradeCostPaise },
-        });
+        const result = await this.userModel.findOneAndUpdate(
+            { _id: buyOrder.userId, balancePaise: { $gte: tradeCostPaise } },
+            { $inc: { balancePaise: -tradeCostPaise } },
+        );
+        if (!result) {
+            buyOrder.status = 'CANCELLED';
+            await buyOrder.save();
+            return;
+        }
         await this.userModel.findByIdAndUpdate(sellOrder.userId, {
             $inc: { balancePaise: tradeCostPaise },
         });
