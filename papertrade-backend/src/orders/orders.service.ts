@@ -4,12 +4,13 @@ import {
     BadRequestException,
 } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { Model } from 'mongoose'
+import { Model, Types } from 'mongoose'
 import { Order } from './orders.schema'
 import { User } from '../users/users.schema'
 import { RedisService } from '../cache/redis.service'
 import { StocksService } from '../stocks/stocks.service'
 import { CreateOrderDto } from './dto/create-order.dto'
+import { PortfolioService } from 'src/portfolio/portfolio.service'
 
 @Injectable()
 export class OrdersService {
@@ -18,6 +19,7 @@ export class OrdersService {
         @InjectModel(User.name) private userModel: Model<User>,
         private redisService: RedisService,
         private stocksService: StocksService,
+        private portfolioService: PortfolioService
     ) {}
 
     async placeOrder(userId: string, dto: CreateOrderDto) {
@@ -29,6 +31,7 @@ export class OrdersService {
         if (!user) throw new NotFoundException('User not found')
 
         const pricePaise = Math.round(dto.price * 100)
+        const symbol = dto.symbol.toUpperCase()
         if(dto.side === 'BUY') {
             const totalCostPaise = pricePaise * dto.quantity
             if (user.balancePaise < totalCostPaise) {
@@ -36,6 +39,33 @@ export class OrdersService {
                 const cost = (totalCostPaise / 100).toLocaleString('en-IN')
                 throw new BadRequestException(
                     `Insufficient balance. Need Rs.${cost}, have Rs.${balance}`
+                )
+            }
+        } else if (dto.side === 'SELL') {
+            const holdingQty = await this.portfolioService.getHoldingQuantity(userId, symbol)
+
+            const reserved = await this.orderModel.aggregate([
+                {
+                    $match: {
+                        userId: new Types.ObjectId(userId),
+                        symbol,
+                        side: 'SELL',
+                        status: { $in: ['PENDING', 'PARTIAL'] },
+                    },
+                },
+                {
+                    $group: {
+                        _id: null,
+                        reservedQty: { $sum: { $subtract: ['$quantity', '$filledQuantity'] } },
+                    },
+                },
+            ])
+            const reservedQty = reserved[0]?.reservedQty ?? 0
+            const availableQty = holdingQty - reservedQty
+
+            if (dto.quantity > availableQty) {
+                throw new BadRequestException(
+                    `Insufficient shares. You hold ${holdingQty}, ${reservedQty} already committed to pending sell orders (${availableQty} available).`
                 )
             }
         }
