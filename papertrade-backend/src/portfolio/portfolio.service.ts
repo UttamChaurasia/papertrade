@@ -11,6 +11,11 @@ export class PortfolioService {
         private stocksService: StocksService,
     ) {}
 
+    async getHoldingQuantity(userId: string, symbol: string): Promise<number> {
+        const holding = await this.portfolioModel.findOne({ userId, symbol });
+        return holding?.quantity ?? 0;
+    }
+
     async addShares(userId: string, symbol: string, qty: number, pricePaise: number) {
         const existing = await this.portfolioModel.findOne({ userId, symbol });
 
