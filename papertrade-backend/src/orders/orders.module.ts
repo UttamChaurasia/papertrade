@@ -8,6 +8,9 @@ import { Trade, TradeSchema } from '../trades/trade.schema'
 import { MatchingEngine } from './matching.engine'
 import { StocksModule } from '../stocks/stocks.module'
 import { CacheModule } from '../cache/cache.module'
+import { PortfolioModule } from '../portfolio/portfolio.module'
+import { LeaderboardModule } from 'src/leaderboard/leaderboard.module'
+
 
 @Module({
     imports: [
@@ -18,6 +21,8 @@ import { CacheModule } from '../cache/cache.module'
         ]),
         StocksModule,
         CacheModule,
+        PortfolioModule,
+        LeaderboardModule,
     ],
     controllers: [OrderController],
     providers: [OrdersService, MatchingEngine],

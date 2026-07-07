@@ -5,6 +5,8 @@ import { Model } from 'mongoose';
 import { Order } from './orders.schema';
 import { User } from '../users/users.schema';
 import { Trade } from '../trades/trade.schema';
+import { PortfolioService } from '../portfolio/portfolio.service';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
 
 @Injectable()
 export class MatchingEngine {
@@ -14,6 +16,8 @@ export class MatchingEngine {
         @InjectModel(Order.name) private orderModel: Model<Order>,
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Trade.name) private tradeModel: Model<Trade>,
+        private portfolioService: PortfolioService,
+        private leaderboardService: LeaderboardService,
     ) {}
 
     async submit(incomingOrder: Order) {
@@ -116,5 +120,20 @@ export class MatchingEngine {
             pricePaise: tradePricePaise,
             quantity: qty,
         });
+
+        await this.portfolioService.addShares(
+            buyOrder.userId.toString(),
+            buyOrder.symbol,
+            qty,
+            tradePricePaise,
+        );
+        await this.portfolioService.removeShares(
+            sellOrder.userId.toString(),
+            sellOrder.symbol,
+            qty,
+        );
+
+        await this.leaderboardService.updateUserRankings(buyOrder.userId.toString());
+        await this.leaderboardService.updateUserRankings(sellOrder.userId.toString());
     }
 }

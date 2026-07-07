@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Portfolio } from './portfolio.schema';
@@ -31,6 +31,24 @@ export class PortfolioService {
                 totalInvestedPaise: totalInvested,
             });
         }
+    }
+    async removeShares(userId: string, symbol: string, qty: number) {
+        const existing = await this.portfolioModel.findOne({ userId, symbol });
+
+        if (!existing || existing.quantity < qty) {
+            throw new BadRequestException(
+                `Insufficient holdings: cannot sell ${qty} shares of ${symbol}`
+            );
+        }
+        const newQty = existing.quantity - qty;
+
+        const investedRemoved = existing.avgPricePaise * qty;
+        const newTotalInvested = existing.totalInvestedPaise - investedRemoved;
+
+        await this.portfolioModel.findByIdAndUpdate(existing._id, {
+            quantity: newQty,
+            totalInvestedPaise: newQty > 0 ? newTotalInvested : 0,
+        });
     }
 
     async getPortfolioWithPnL(userId: string) {
