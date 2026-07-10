@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import axios from 'axios';
 import { RedisService } from '../cache/redis.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { StocksGateway } from './stocks.gateway';
 
 @Injectable()
 
@@ -8,7 +10,10 @@ export class StocksService {
     private readonly AV_BASE = 'https://www.alphavantage.co/query';
     private readonly API_KEY = process.env.ALPHA_VANTAGE_KEY;
 
-    constructor(private redisService: RedisService) {}
+    private readonly WATCHLIST = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'BRK.B', 'JPM', 'JNJ'];
+    constructor(private redisService: RedisService,
+                private stocksGateway: StocksGateway
+    ) {}
 
     async getCurrentPrice(symbol: string): Promise<number> {
         const cacheKey = `price:${symbol}`;
@@ -113,4 +118,29 @@ export class StocksService {
       }))
       .reverse();
   }
+  @Cron(CronExpression.EVERY_10_SECONDS)
+    async pollAndBroadcastPrices() {
+         const symbols = this.WATCHLIST.join(',');
+        const url = `${this.AV_BASE}?function=REALTIME_BULK_QUOTES&symbol=${symbols}&apikey=${this.API_KEY}`;
+
+        try {
+            const response = await axios.get(url);
+            const quotes = response.data['data'] || [];
+
+            if (!quotes.length) {
+                console.log('Bulk quote poll returned no data:', JSON.stringify(response.data));
+                return;
+            }
+
+            for (const quote of quotes) {
+                const symbol = quote['symbol'];
+                const price = parseFloat(quote['close']);
+
+                await this.redisService.setex(`price:${symbol}`, 300, price.toString());
+                this.stocksGateway.broadcastPrice(symbol, price);
+            }
+        } catch (error) {
+            console.log('Price polling failed ->', error.code || error.message);
+        }
+    }
 }

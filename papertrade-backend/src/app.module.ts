@@ -8,6 +8,7 @@ import { StocksModule } from './stocks/stocks.module';
 import { OrdersModule } from './orders/orders.module'
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { LeaderboardModule } from './leaderboard/leaderboard.module';
     OrdersModule,
     PortfolioModule,
     LeaderboardModule,
+    ScheduleModule.forRoot(),
   ],
 })
 export class AppModule {}
