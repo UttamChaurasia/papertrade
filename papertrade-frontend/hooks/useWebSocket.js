@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
+import { getToken } from '@/lib/api';
 
 export function useStockPrice(symbol, userId) {
     const [price, setPrice] = useState(null)

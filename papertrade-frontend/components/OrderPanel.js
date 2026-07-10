@@ -1,6 +1,6 @@
 'use client'
 
-import { usestate } from 'react'
+import { useState, useEffect } from 'react'
 import apiclient from '@/lib/api'
 
 export default function OrderPanel({ symbol, currentPrice }) {
@@ -10,6 +10,10 @@ export default function OrderPanel({ symbol, currentPrice }) {
     const [quantity, setQuantity] = useState('')
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState(null)
+
+    useEffect(() => {
+        if (currentPrice) setPrice(currentPrice)
+    }, [currentPrice])
 
     const totalCost = price && quantity
         ? (parseFloat(price) * parseInt(quantity)).toLocaleString('en-IN')
@@ -41,7 +45,7 @@ export default function OrderPanel({ symbol, currentPrice }) {
         }
     }
     return (
-        <div clsaaName="bg-gray-900 rounded-lg p-4 w-full max-w-sm">
+        <div className="bg-gray-900 rounded-lg p-4 w-full max-w-sm">
             <div className="flex mb-4">
                 <button
                     onClick={() => setSide('BUY')}
