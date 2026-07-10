@@ -1,4 +1,12 @@
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
+
+export const getUserId = () => {
+    const token = getToken();
+    if (!token) return null;
+    const decoded = jwtDecode(token);
+    return decoded.sub;
+};
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -36,5 +44,8 @@ api.interceptors.response.use(
     }
 );
 
-export const getToken = () => localStorage.getItem('accessToken');
+export const getToken = () => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('accessToken');
+};
 export default api;
