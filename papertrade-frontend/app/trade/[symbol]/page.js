@@ -5,8 +5,9 @@ import { useParams } from 'next/navigation'
 import CandlestickChart from '@/components/CandlestickChart'
 import ChartReplay from '@/components/ChartReplay'
 import IndicatorOverlay from '@/components/IndicatorOverlay'
-import apiClient from '@/lib/api'
 import OrderPanel from '@/components/OrderPanel'
+import { useStockPrice } from '@/hooks/useWebSocket'
+import apiClient, { getUserId } from '@/lib/api'
 
 const INTERVALS = [
     { label: '1D', value: 'daily' },
@@ -20,6 +21,7 @@ export default function TradePage() {
     const [candles, setCandles] = useState([])
     const [loadingCandles, setLoadingCandles] = useState(false)
     const [activeIndicators, setActiveIndicators] = useState([])
+    const { price } = useStockPrice(symbol, getUserId())
 
     useEffect(() => {
         if (activeTab === 'replay' && candles.length === 0) {
@@ -134,7 +136,7 @@ export default function TradePage() {
             <div className="mt-4">
                 <OrderPanel
                     symbol={symbol?.toUpperCase()}
-                    currentPrice={null}
+                    currentPrice={price}
                 />
             </div>
         </div>
