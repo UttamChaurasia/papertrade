@@ -29,6 +29,13 @@ export class RedisService implements OnModuleDestroy {
   async expire(key: string, ttlSeconds: number): Promise<void> {
     await this.client.expire(key, ttlSeconds);
   }
+  async incrWithExpiry(key: string, ttlSeconds: number): Promise<number> {
+    const count = await this.incr(key);
+    if (count === 1) {
+      await this.expire(key, ttlSeconds);
+    }
+    return count;
+  }
 
   //P-1:Price cache
   async getCachedPrice(symbol: string): Promise<number | null> {
