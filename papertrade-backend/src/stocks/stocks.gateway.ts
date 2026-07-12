@@ -25,7 +25,7 @@ export class StocksGateway {
 
     broadcastPrice(symbol: string, price: number) {
         this.server.to(`price:${symbol}`).emit('priceUpdate', {
-            symbol, price, timeStamps: Date.now() 
+            symbol, price, timeStamp: Date.now() 
 
         });
     }
