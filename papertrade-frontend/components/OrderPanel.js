@@ -45,19 +45,19 @@ export default function OrderPanel({ symbol, currentPrice }) {
         }
     }
     return (
-        <div className="bg-gray-900 rounded-lg p-4 w-full max-w-sm">
+        <div className="bg-card rounded-lg p-4 w-full max-w-sm">
             <div className="flex mb-4">
                 <button
                     onClick={() => setSide('BUY')}
-                    className={`flex-1 py-2 rounded-1 font-medium text-sm ${
-                        side === 'BUY' ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-400'
+                    className={`flex-1 py-2 rounded-l font-medium text-sm ${
+                        side === 'BUY' ? 'bg-mint text-canvas' : 'bg-canvas text-muted'
                     }`}>
                     BUY
                 </button>
                 <button
                     onClick={() => setSide('SELL')}
                     className={`flex-1 py-2 rounded-r font-medium text-sm ${
-                        side === 'SELL' ? 'bg-red-600 text-white' : 'bg-gray-800 text-gray-400'
+                        side === 'SELL' ? 'bg-crimson text-ink' : 'bg-canvas text-muted'
                     }`}>
                     SELL
                 </button>
@@ -68,14 +68,14 @@ export default function OrderPanel({ symbol, currentPrice }) {
                         key={t}
                         onClick={() => setType(t)}
                         className={`flex-1 py-1 rounded text-xs font-medium ${
-                            type === t ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'
+                            type === t ? 'bg-mint text-canvas' : 'bg-canvas text-muted'
                     }`}>
                         {t}
                     </button>
                 ))}
             </div>
             <div className="mb-3">
-                <label className="text-gray-400 text-xs mb-1 block">
+                <label className="text-muted text-xs mb-1 block">
                     Price (Rs.)
                 </label>
                 <input
@@ -84,30 +84,30 @@ export default function OrderPanel({ symbol, currentPrice }) {
                     onChange={e => setPrice(e.target.value)}
                     disabled={type === 'MARKET'}
                     placeholder={type === 'MARKET' ? 'At market price' : 'Enter price'}
-                    className="w-full bg-gray-800 text-white px-3 py-2 rounded text-sm
-                                border border-gray-700 focus:border-blue-500 outline-none
+                    className="w-full bg-canvas text-ink px-3 py-2 rounded text-sm
+                                border border-border focus:border-mint outline-none
                                 disabled:opacity-50"
                 />
             </div>
             <div className="mb-3">
-                <label className="text-gray-400 text-xs mb-1 block">Quantity</label>
+                <label className="text-muted text-xs mb-1 block">Quantity</label>
                 <input
                     type="number"
                     value={quantity}
                     onChange={e => setQuantity(e.target.value)}
                     placeholder="Number of shares"
-                    className="w-full bg-gray-800 text-white px-3 py-2 rounded text-sm
-                                border border-gray-700 focus:border-blue-500 outline-none"
+                    className="w-full bg-canvas text-ink px-3 py-2 rounded text-sm
+                                border border-border focus:border-mint outline-none"
                 />
             </div>
-            <div className="flex justify-between text-xs text-gray-400 mb-4">
+            <div className="flex justify-between text-xs text-muted mb-4">
                 <span>Estimated total</span>
-                <span className="text-white font-mono">Rs.{totalCost}</span>
+                <span className="text-ink font-mono">Rs.{totalCost}</span>
             </div>
 
             {message && (
                 <div className={`text-xs px-3 py-2 rounded mb-3 ${
-                    message.success ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
+                    message.success ? 'bg-mint/15 text-mint' : 'bg-crimson/15 text-crimson'
                 }`}>
                     {message.text}
                 </div>
@@ -117,9 +117,9 @@ export default function OrderPanel({ symbol, currentPrice }) {
                 disabled={loading}
                 className={`w-full py-2 rounded font-medium text-sm ${
                 side === 'BUY'
-                ? 'bg-green-600 hover:bg-green-500'
-                : 'bg-red-600 hover:bg-red-500'
-                } text-white disabled:opacity-50`}>
+                ? 'bg-mint hover:bg-mint/80 text-canvas'
+                : 'bg-crimson hover:bg-crimson/80 text-ink'
+                } disabled:opacity-50`}>
                 {loading ? 'Placing...' : `Place ${side} Order`}
             </button>
         </div>
