@@ -11,9 +11,10 @@ import {
 import { OrdersService } from './orders.service'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
+import { RateLimitGuard } from 'src/guards/rate-limit.guard'
 
 @Controller('api/orders')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RateLimitGuard)
 export class OrderController {
     constructor(private ordersService: OrdersService) {}
 
