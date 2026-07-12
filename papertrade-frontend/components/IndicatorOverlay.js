@@ -20,23 +20,23 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
         const chart = createChart(mainChartRef.current, {
             height: 380,
             layout: {
-                background: { color: '#0D1117' },
-                textColor: '#C9D1D9',
+                background: { color: '#0F0A1C' },
+                textColor: '#8E7FA6',
             },
             grid: {
-                vertLines: { color: '#30363D' },
-                horzLines: { color: '#30363D' },
+                vertLines: { color: '#2A1F45' },
+                horzLines: { color: '#2A1F45' },
             },
         })
         mainChart.current = chart
 
         const candleSeries = chart.addSeries(CandlestickSeries, {
-            upColor: '#3FB950',
-            downColor: '#F78166',
-            borderUpColor: '#3FB950',
-            borderDownColor: '#F78166',
-            wickUpColor: '#3FB950',
-            wickDownColor: '#F78166',
+            upColor: '#00F2B2',
+            downColor: '#FF1F44',
+            borderUpColor: '#00F2B2',
+            borderDownColor: '#FF1F44',
+            wickUpColor: '#00F2B2',
+            wickDownColor: '#FF1F44',
         })
         candleSeries.setData(candles)
 
@@ -72,12 +72,12 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
             const rsiC = createChart(rsiChartRef.current, {
                 height: 120,
                 layout: {
-                    background: { color: '#0D1117' },
-                    textColor: '#C9D1D9',
+                    background: { color: '#0F0A1C' },
+                    textColor: '#8E7FA6',
                 },
                 grid: {
-                    vertLines: { color: '#30363D' },
-                    horzLines: { color: '#30363D' },
+                    vertLines: { color: '#2A1F45' },
+                    horzLines: { color: '#2A1F45' },
                 },
                 rightPriceScale: {
                     scaleMargins: { top: 0.1, bottom: 0.1 },
@@ -88,10 +88,10 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
             const rsiSeries = rsiC.addSeries(LineSeries, { color: '#BC8CFF', lineWidth: 1 })
             rsiSeries.setData(calculateRSI(candles))
 
-            const ob = rsiC.addSeries(LineSeries, { color: '#F78166', lineWidth: 1 })
+            const ob = rsiC.addSeries(LineSeries, { color: '#FF1F44', lineWidth: 1 })
             ob.setData(candles.map(c => ({ time: c.time, value: 70 })))
 
-            const os = rsiC.addSeries(LineSeries, { color: '#3FB950', lineWidth: 1 })
+            const os = rsiC.addSeries(LineSeries, { color: '#00F2B2', lineWidth: 1 })
             os.setData(candles.map(c => ({ time: c.time, value: 30 })))
         }
 
