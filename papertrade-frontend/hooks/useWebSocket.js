@@ -25,6 +25,10 @@ export function useStockPrice(symbol, userId) {
         socket.on('orderUpdate', (data) => {
             setOrderUpdate(data)
         })
+        return () => {
+            socket.emit('unsubscribe', symbol)
+            socket.disconnect()
+        }
 
     }, [symbol, userId])
 
