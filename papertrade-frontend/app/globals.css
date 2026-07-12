@@ -1,26 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Platform Canvas */
+  --bg-dark-purple: #0F0A1C;
+  --bg-card-purple: #1A1230;
+  --border-purple:  #2A1F45;
+
+  /* Text Layers */
+  --text-primary:   #F5F3F7;
+  --text-muted:     #8E7FA6;
+
+  /* Bullish / Upmarket */
+  --accent-mint:    #00F2B2;
+  --mint-glow:      rgba(0, 242, 178, 0.15);
+
+  /* Bearish / Downmarket */
+  --accent-crimson: #FF1F44;
+  --crimson-glow:   rgba(255, 31, 68, 0.15);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-canvas: var(--bg-dark-purple);
+  --color-card:   var(--bg-card-purple);
+  --color-border: var(--border-purple);
+  --color-ink:    var(--text-primary);
+  --color-muted:  var(--text-muted);
+  --color-mint:   var(--accent-mint);
+  --color-crimson: var(--accent-crimson);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-dark-purple);
+  color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
 }
