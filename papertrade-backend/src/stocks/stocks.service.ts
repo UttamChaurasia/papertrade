@@ -10,7 +10,7 @@ export class StocksService {
     private readonly AV_BASE = 'https://www.alphavantage.co/query';
     private readonly API_KEY = process.env.ALPHA_VANTAGE_KEY;
 
-    private readonly WATCHLIST = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'BRK.B', 'JPM', 'JNJ'];
+    private readonly WATCHLIST = [/*'AAPL',*/'MSFT', 'GOOGL', 'AMZN'/*, 'TSLA', 'META', 'NVDA', 'BRK.B', 'JPM', 'JNJ'*/];
     constructor(private redisService: RedisService,
                 private stocksGateway: StocksGateway
     ) {}
@@ -99,14 +99,14 @@ export class StocksService {
 
     private parseCandles(data: any, interval: string) {
     const key = interval === 'daily'
-      ? 'Time Series (Daily)'
-      : `Time Series (${interval})`;
+        ? 'Time Series (Daily)'
+        : `Time Series (${interval})`;
 
     const series = data[key];
     if (!series) return [];
 
     return Object.entries(series)
-      .map(([time, values]: [string, any]) => ({
+    .map(([time, values]: [string, any]) => ({
         time: interval === 'daily'
             ? time
             : Math.floor(new Date(time).getTime() / 1000),
@@ -115,32 +115,18 @@ export class StocksService {
         low:    parseFloat(values['3. low']),
         close:  parseFloat(values['4. close']),
         volume: parseFloat(values['5. volume']),
-      }))
-      .reverse();
-  }
-  @Cron(CronExpression.EVERY_10_SECONDS)
+    }))
+    .reverse();
+    }
+    @Cron(CronExpression.EVERY_5_MINUTES)
     async pollAndBroadcastPrices() {
-         const symbols = this.WATCHLIST.join(',');
-        const url = `${this.AV_BASE}?function=REALTIME_BULK_QUOTES&symbol=${symbols}&apikey=${this.API_KEY}`;
-
-        try {
-            const response = await axios.get(url);
-            const quotes = response.data['data'] || [];
-
-            if (!quotes.length) {
-                console.log('Bulk quote poll returned no data:', JSON.stringify(response.data));
-                return;
-            }
-
-            for (const quote of quotes) {
-                const symbol = quote['symbol'];
-                const price = parseFloat(quote['close']);
-
-                await this.redisService.setex(`price:${symbol}`, 300, price.toString());
+        for (const symbol of this.WATCHLIST) {
+            try {
+                const price = await this.getCurrentPrice(symbol);
                 this.stocksGateway.broadcastPrice(symbol, price);
+            } catch (error) {
+                console.log(`Poll failed for ${symbol} ->`, error.message);
             }
-        } catch (error) {
-            console.log('Price polling failed ->', error.code || error.message);
         }
     }
 }
