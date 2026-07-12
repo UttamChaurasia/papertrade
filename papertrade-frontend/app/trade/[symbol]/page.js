@@ -24,7 +24,7 @@ export default function TradePage() {
     const { price } = useStockPrice(symbol, getUserId())
 
     useEffect(() => {
-        if (activeTab === 'replay' && candles.length === 0) {
+        if ((activeTab === 'replay' || activeTab === 'indicators') && candles.length === 0) {
             fetchCandles()
         }
     }, [activeTab])
@@ -49,9 +49,9 @@ export default function TradePage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-950 text-white p-6">
+        <div className="min-h-screen bg-canvas text-ink p-6">
             <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold text-white">
+                <h1 className="text-2xl font-bold text-ink">
                     {symbol?.toUpperCase()}
                 </h1>
 
@@ -61,7 +61,7 @@ export default function TradePage() {
                         <button 
                             key={i.value} 
                             onClick={() => setInterval(i.value)}
-                            className={`px-3 py-1 rounded text-sm font-medium ${interval === i.value ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                            className={`px-3 py-1 rounded text-sm font-medium ${interval === i.value ? 'bg-mint text-canvas' : 'bg-card text-muted hover:bg-border'}`}>
                                 {i.label}
                         </button>
                     ))}
@@ -72,17 +72,17 @@ export default function TradePage() {
             <div className="flex gap-2 mb-4">
                 <button
                     onClick={() => setActiveTab('chart')}
-                    className={`px-4 py-2 rounded text-sm font-medium ${activeTab === 'chart' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
+                    className={`px-4 py-2 rounded text-sm font-medium ${activeTab === 'chart' ? 'bg-mint text-canvas' : 'bg-card text-muted'}`}>
                     Live Chart
                 </button>
                 <button
                     onClick={() => setActiveTab('replay')}
-                    className={`px-4 py-2 rounded text-sm font-medium ${activeTab === 'replay' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
+                    className={`px-4 py-2 rounded text-sm font-medium ${activeTab === 'replay' ? 'bg-mint text-canvas' : 'bg-card text-muted'}`}>
                         Replay
                 </button>
                 <button
                     onClick={() => setActiveTab('indicators')}
-                    className={`px-4 py-2 rounded text-sm font-medium ${activeTab === 'indicators' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
+                    className={`px-4 py-2 rounded text-sm font-medium ${activeTab === 'indicators' ? 'bg-mint text-canvas' : 'bg-card text-muted'}`}>
                     Indicators
                 </button>
             </div>
@@ -93,14 +93,14 @@ export default function TradePage() {
                         <button
                             key={ind}
                             onClick={() => toggleIndicator(ind)}
-                            className = {`px-3 py-1 rounded text-sm font-medium ${activeIndicators.includes(ind) ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                            className = {`px-3 py-1 rounded text-sm font-medium ${activeIndicators.includes(ind) ? 'bg-mint text-canvas' : 'bg-card text-muted hover:bg-border'}`}>
                                 {ind}
                             </button>
                     ))}
                 </div>
             )}
 
-            <div className="bg-gray-900 rounded-lg p-4">
+            <div className="bg-card rounded-lg p-4">
                 {activeTab === 'chart' && (
                     <CandlestickChart
                         symbol={symbol?.toUpperCase()}
@@ -109,7 +109,7 @@ export default function TradePage() {
                 )}
                 {activeTab === 'replay' && (
                     loadingCandles ? (
-                        <div className="text-blue-400 text-center py-20">
+                        <div className="text-mint text-center py-20">
                             Loading candles...
                         </div>
                     ) : (
@@ -122,7 +122,7 @@ export default function TradePage() {
 
                 {activeTab === 'indicators' && (
                     loadingCandles ? (
-                        <div className="text-blue-400 text-center py-20">
+                        <div className="text-mint text-center py-20">
                             Loading candles...
                         </div>
                     ) :  (
