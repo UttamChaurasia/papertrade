@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createChart, CandlestickSeries } from 'lightweight-charts'
 
@@ -17,18 +19,18 @@ export default function ChartReplay({ symbol, allCandles }) {
         const chart = createChart(chartRef.current, {
             width: chartRef.current.clientWidth,
             height: 350,
-            layout: { background: { color: '#0D1117' }, textColor: '#C9D1D9' },
+            layout: { background: { color: '#0F0A1C' }, textColor: '#8E7FA6' },
             grid: {
-                vertLines: { color: '#30363D'},
-                horzLines: { color: '#30363D'},
+                vertLines: { color: '#2A1F45' },
+                horzLines: { color: '#2A1F45' },
             },
         })
 
         chartObj.current = chart
         const series = chart.addSeries(CandlestickSeries, {
-            upColor: '#3FB950', downColor: '#F78166',
-            borderUpColor: '#3FB950', borderDownColor: 'F78166',
-            wickUpColor: '#3FB950', wickDownColor: 'F78166',
+            upColor: '#00F2B2', downColor: '#FF1F44',
+            borderUpColor: '#00F2B2', borderDownColor: '#FF1F44',
+            wickUpColor: '#00F2B2', wickDownColor: '#FF1F44',
         })
 
         seriesRef.current = series
@@ -50,7 +52,7 @@ export default function ChartReplay({ symbol, allCandles }) {
         intervalRef.current = setInterval(() => {
             setCurrentIndex(prev => {
                 const next = prev + 1
-                
+
                 if (next >= allCandles.length) {
                     clearInterval(intervalRef.current)
                     setIsPlaying(false)
@@ -75,42 +77,38 @@ export default function ChartReplay({ symbol, allCandles }) {
 
     return (
         <div className='flex flex-col gap-3'>
-
-            {/* chart renders*/}
             <div ref={chartRef} className='w-full' />
 
-            {/* timeline scrubber*/}
             <input
                 type='range'
                 min={50}
                 max={allCandles?.length - 1}
                 value={currentIndex}
                 onChange={e => seek(Number(e.target.value))}
-                className='w-full accent-blue-400'
+                className='w-full accent-mint'
             />
 
-            {/* controls */}
             <div className='flex items-center gap-3'>
                 {isPlaying ? (
                     <button onClick={pause}
-                        className='px-4 py-2 bg-yellow-600 rounded'>Pause</button>
+                        className='px-4 py-2 bg-crimson rounded'>Pause</button>
                 )   :   (
                     <button onClick={play}
-                        className='px-4 py-2 bg-green-600 rounded'>Play</button>
+                        className='px-4 py-2 bg-mint rounded'>Play</button>
                 )}
 
-                <span className='text-gray-400 text-sm'>Speed</span>
+                <span className='text-muted text-sm'>Speed</span>
 
                 {[1000, 500, 200, 100].map(s => (
                     <button key={s} onClick={() => setSpeed(s)}
                         className={`px-3 py-1 rounded text-sm ${
-                            speed === s ? 'bg-blue-600' : 'bg-gray-700'
+                            speed === s ? 'bg-mint' : 'bg-card'
                         }`}>
                             {s === 1000 ? '1x' : s === 500 ? '2x' : s === 200 ? '5x' : '10x'}
                         </button>
                 ))}
 
-                <span className='text-gray-400 text-sm ml-auto'>
+                <span className='text-muted text-sm ml-auto'>
                     Candle {currentIndex} / {allCandles?.length}
                 </span>
             </div>
