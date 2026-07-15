@@ -29,7 +29,21 @@ export default function CandlestickChart({ symbol, interval = 'daily' }) {
         vertLines: { color: '#2A1F45' },
         horzLines: { color: '#2A1F45' },
       },
-      crosshair: { mode: 1 },
+      crosshair: {
+        mode: 1,
+        vertLine: {
+          color: '#8E7FA6',
+          width: 1,
+          style: 2,
+          labelBackgroundColor: '#00F2B2',
+        },
+        horzLine: {
+          color: '#8E7FA6',
+          width: 1,
+          style: 2,
+          labelBackgroundColor: '#00F2B2',
+        }
+      },
       rightPriceScale: { borderColor: '#2A1F45' },
       timeScale: { borderColor: '#2A1F45' },
     })
