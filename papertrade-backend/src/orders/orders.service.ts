@@ -85,7 +85,7 @@ export class OrdersService {
     async getMyOrders(userId: string) {
         return this.orderModel
             .find({ userId })
-            .sort({ createAt: -1 })
+            .sort({ createdAt: -1 })
             .limit(50)
     }
 
