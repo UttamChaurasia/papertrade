@@ -34,7 +34,7 @@ export class StocksService {
         }
 
         const price = parseFloat(quote['05. price']);
-        await this.redisService.setex(cacheKey, 60, price.toString());
+        await this.redisService.setex(cacheKey, 14400, price.toString());
         return price;
     }
 
