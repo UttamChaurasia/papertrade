@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Portfolio } from './portfolio.schema';
 import { StocksService } from '../stocks/stocks.service';
 
@@ -12,16 +12,20 @@ export class PortfolioService {
     ) {}
 
     async getHoldingQuantity(userId: string, symbol: string): Promise<number> {
-        const holding = await this.portfolioModel.findOne({ userId, symbol });
+        const holding = await this.portfolioModel.findOne({
+            userId: new Types.ObjectId(userId),
+            symbol,
+        });
         return holding?.quantity ?? 0;
     }
 
     async addShares(userId: string, symbol: string, qty: number, pricePaise: number) {
-        const existing = await this.portfolioModel.findOne({ userId, symbol });
+        const objectUserId = new Types.ObjectId(userId);
+        const existing = await this.portfolioModel.findOne({ userId: objectUserId, symbol });
 
         if (!existing) {
             await this.portfolioModel.create({
-                userId, symbol, quantity: qty,
+                userId: objectUserId, symbol, quantity: qty,
                 avgPricePaise: pricePaise,
                 totalInvestedPaise: pricePaise * qty,
             });
@@ -37,8 +41,12 @@ export class PortfolioService {
             });
         }
     }
+
     async removeShares(userId: string, symbol: string, qty: number) {
-        const existing = await this.portfolioModel.findOne({ userId, symbol });
+        const existing = await this.portfolioModel.findOne({
+            userId: new Types.ObjectId(userId),
+            symbol,
+        });
 
         if (!existing || existing.quantity < qty) {
             throw new BadRequestException(
@@ -57,7 +65,10 @@ export class PortfolioService {
     }
 
     async getPortfolioWithPnL(userId: string) {
-        const holdings = await this.portfolioModel.find({ userId, quantity: { $gt: 0 } });
+        const holdings = await this.portfolioModel.find({
+            userId: new Types.ObjectId(userId),
+            quantity: { $gt: 0 },
+        });
 
         const result = await Promise.all(holdings.map(async h => {
             const currentPrice = await this.stocksService.getCurrentPrice(h.symbol);
