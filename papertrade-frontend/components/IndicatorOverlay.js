@@ -97,7 +97,12 @@ export default function IndicatorOverlay({ candles, activeIndicators }) {
 
         return () => {
             chart.remove()
-            rsiChart.current?.remove()
+            mainChart.current = null
+
+            if (rsiChart.current) {
+                rsiChart.current.remove()
+                rsiChart.current = null
+            }
         }
     }, [candles, activeIndicators])
 
