@@ -31,4 +31,8 @@ export class OrderController {
     cancelOrder(@Param('id') orderId: string, @Request() req) {
         return this.ordersService.cancelOrder(orderId, req.user.sub)
     }
+    @Post('reconcile')
+    reconcilePendingOrders() {
+        return this.ordersService.reconcilePendingOrders()
+    }
 }

@@ -11,6 +11,7 @@ import { RedisService } from '../cache/redis.service'
 import { StocksService } from '../stocks/stocks.service'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { PortfolioService } from 'src/portfolio/portfolio.service'
+import { MatchingEngine } from './matching.engine'
 
 @Injectable()
 export class OrdersService {
@@ -19,7 +20,8 @@ export class OrdersService {
         @InjectModel(User.name) private userModel: Model<User>,
         private redisService: RedisService,
         private stocksService: StocksService,
-        private portfolioService: PortfolioService
+        private portfolioService: PortfolioService,
+        private matchingEngine: MatchingEngine
     ) {}
 
     async placeOrder(userId: string, dto: CreateOrderDto) {
@@ -79,6 +81,9 @@ export class OrdersService {
             filledQuantity: 0,
             status: 'PENDING',
         })
+
+        await this.matchingEngine.submit(order)
+
         return order
     }
 
@@ -90,7 +95,10 @@ export class OrdersService {
     }
 
     async cancelOrder(orderId: string, userId: string) {
-        const order = await this.orderModel.findOne({ _id: orderId, userId })
+        const order = await this.orderModel.findOne({
+            _id: orderId,
+            userId: new Types.ObjectId(userId),
+        })
         if(!order) throw new NotFoundException('Order Not Found')
 
         if(order.status !== 'PENDING' && order.status !== 'PARTIAL') {
@@ -101,5 +109,21 @@ export class OrdersService {
         order.status = 'CANCELLED'
         await order.save()
         return { message: 'Order cancelled', order }
+    }
+    async reconcilePendingOrders() {
+        const pendingOrders = await this.orderModel
+            .find({ status: { $in: ['PENDING', 'PARTIAL'] } })
+            .sort({ createdAt: 1 })
+
+        let processed = 0
+        for (const order of pendingOrders) {
+            const fresh = await this.orderModel.findById(order._id)
+            if (!fresh || fresh.status === 'FILLED' || fresh.status === 'CANCELLED') continue
+
+            await this.matchingEngine.submit(fresh)
+            processed++
+        }
+
+        return { message: `Reconciliation swept ${processed} orders`, processed }
     }
 }
