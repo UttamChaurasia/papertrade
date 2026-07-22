@@ -80,7 +80,7 @@ export default function StockSearch() {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 onFocus={() => setShowDropdown(true)}
-                placeholder="Search stocks (e.g. AAPL, Microsoft)..."
+                placeholder="Search stocks (e.g. AAPL, MSFT)..."
                 className="w-full bg-card border border-border rounded-lg px-4 py-2.5 text-ink
                             placeholder-muted focus:outline-none focus:border-mint"
             />
@@ -92,9 +92,9 @@ export default function StockSearch() {
                         searching ? (
                             <div className="p-3 text-muted text-sm">Searching...</div>
                         ) : results.length ? (
-                            results.map(r => (
+                            results.map((r, idx) => (
                                 <button
-                                    key={r.symbol}
+                                    key={`${r.symbol}-${r.region}-${idx}`}
                                     onClick={() => goToStock(r.symbol, r.name)}
                                     className="w-full text-left px-4 py-2.5 hover:bg-canvas
                                                 border-b border-border last:border-b-0"
