@@ -8,7 +8,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'https://papertrade-uttam-0582.vercel.app', // add your actual Vercel URL once you have it
+      'https://papertrade-sand.vercel.app',
     ],
     credentials: true,
   });
