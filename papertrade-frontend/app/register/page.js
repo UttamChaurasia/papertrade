@@ -47,6 +47,7 @@ export default function RegisterPage() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="you@example.com"
                                 required
+                                suppressHydrationWarning
                                 className="w-full bg-canvas border border-border rounded-lg px-4 py-2.5 text-ink placeholder-muted focus:outline-none focus:border-mint"
                             />
                         </div>
@@ -58,6 +59,7 @@ export default function RegisterPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
                                 required
+                                suppressHydrationWarning
                                 className="w-full bg-canvas border border-border rounded-lg px-4 py-2.5 text-ink placeholder-muted focus:outline-none focus:border-mint"
                             />
                         </div>
@@ -69,12 +71,14 @@ export default function RegisterPage() {
                                 onChange={(e) => setConfirm(e.target.value)}
                                 placeholder="••••••••"
                                 required
+                                suppressHydrationWarning
                                 className="w-full bg-canvas border border-border rounded-lg px-4 py-2.5 text-ink placeholder-muted focus:outline-none focus:border-mint"
                             />
                         </div>
                         <button
                         type="submit"
                         disabled={isLoading}
+                        suppressHydrationWarning
                         className="w-full bg-mint hover:bg-mint/80 disabled:bg-mint/20 text-canvas font-semibold py-2.5 rounded-lg transition-colors"
                         >
                             {isLoading ? 'Creating account...' : 'Create Account'}
