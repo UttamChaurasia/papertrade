@@ -76,22 +76,22 @@ export class StocksService {
         return candles;
     }
 
-    async searchSymbols(query: string){
+    async searchSymbols(query: string) {
         const cacheKey = `search:${query.toLowerCase()}`;
 
         const cached = await this.redisService.get(cacheKey);
         if (cached) return JSON.parse(cached);
 
-        const url = `${this.AV_BASE}?function=SYMBOL_SEARCH&keywords=${query}&apikey=${this.API_KEY}`;
+        const url = `${this.FINNHUB_BASE}/search?q=${encodeURIComponent(query)}&token=${this.FINNHUB_KEY}`;
         const response = await axios.get(url);
 
-        const results = response.data['bestMatches'] || [];
+        const results = response.data['result'] || [];
 
         const simplified = results.map((r: any) => ({
-            symbol: r['1. symbol'],
-            name: r['2. name'],
-            type: r['3. type'],
-            region: r['4. region'],
+            symbol: r.symbol,
+            name: r.description,
+            type: r.type,
+            region: 'US', // Finnhub's free tier only covers US-listed symbols
         }));
 
         await this.redisService.setex(cacheKey, 3600, JSON.stringify(simplified));
