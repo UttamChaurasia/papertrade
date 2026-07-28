@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import axios from 'axios';
 import { RedisService } from '../cache/redis.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -9,6 +9,8 @@ import { StocksGateway } from './stocks.gateway';
 export class StocksService {
     private readonly AV_BASE = 'https://www.alphavantage.co/query';
     private readonly API_KEY = process.env.ALPHA_VANTAGE_KEY;
+    private readonly FINNHUB_BASE = 'https://finnhub.io/api/v1';
+    private readonly FINNHUB_KEY = process.env.FINNHUB_API_KEY;
 
     private readonly WATCHLIST = [/*'AAPL',*/'MSFT', 'GOOGL', 'AMZN'/*, 'TSLA', 'META', 'NVDA', 'BRK.B', 'JPM', 'JNJ'*/];
     constructor(private redisService: RedisService,
@@ -25,15 +27,15 @@ export class StocksService {
         }
 
         await this.redisService.trackCacheHit('miss');
-        const url = `${this.AV_BASE}?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${this.API_KEY}`;
+        const url = `${this.FINNHUB_BASE}/quote?symbol=${symbol}&token=${this.FINNHUB_KEY}`;
 
         const response = await axios.get(url);
-        const quote = response.data['Global Quote'];
-        if (!quote || !quote['05. price']) {
+        const price = response.data.c; // 'c' = current price
+
+        if (!price || price === 0) {
             throw new NotFoundException(`No price data found for: ${symbol}`);
         }
 
-        const price = parseFloat(quote['05. price']);
         await this.redisService.setex(cacheKey, 14400, price.toString());
         return price;
     }
