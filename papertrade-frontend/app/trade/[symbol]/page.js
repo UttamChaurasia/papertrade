@@ -10,6 +10,10 @@ import { useStockPrice } from '@/hooks/useWebSocket'
 import apiClient, { getUserId } from '@/lib/api'
 
 const INTERVALS = [
+    { label: '5M', value: '5min' },
+    { label: '15M', value: '15min' },
+    { label: '30M', value: '30min' },
+    { label: '1H', value: '1h' },
     { label: '1D', value: 'daily' },
 ]
 const INDICATOR_OPTIONS = ['SMA20', 'SMA50', 'EMA20', 'RSI', 'BB']
@@ -27,13 +31,13 @@ export default function TradePage() {
         if ((activeTab === 'replay' || activeTab === 'indicators') && candles.length === 0) {
             fetchCandles()
         }
-    }, [activeTab])
+    }, [activeTab, interval])
 
     const fetchCandles =  async () => {
         setLoadingCandles(true)
         try{
             const res = await apiClient.get(
-                `/api/stocks/candles/${symbol}?interval=daily`
+                `/api/stocks/candles/${symbol}?interval=${interval}`
             )
             setCandles(res.data)
         } finally {
