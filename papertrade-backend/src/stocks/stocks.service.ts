@@ -7,8 +7,8 @@ import { StocksGateway } from './stocks.gateway';
 @Injectable()
 
 export class StocksService {
-    private readonly AV_BASE = 'https://www.alphavantage.co/query';
-    private readonly API_KEY = process.env.ALPHA_VANTAGE_KEY;
+    private readonly TWELVE_DATA_BASE = 'https://api.twelvedata.com';
+    private readonly TWELVE_DATA_KEY = process.env.TWELVE_DATA_API_KEY;
     private readonly FINNHUB_BASE = 'https://finnhub.io/api/v1';
     private readonly FINNHUB_KEY = process.env.FINNHUB_API_KEY;
 
@@ -48,25 +48,24 @@ export class StocksService {
             return JSON.parse(cached);
         }
         await this.redisService.trackCacheHit('miss');
-        let url: string;
-        if(interval === 'daily'){
-            url = `${this.AV_BASE}?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=compact&apikey=${this.API_KEY}`;
 
-        } else {
-            url = `${this.AV_BASE}?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=${this.API_KEY}`;
-        }
+        // Twelve Data calls the daily interval '1day', not 'daily' — everything else maps straight through
+        const tdInterval = interval === 'daily' ? '1day' : interval;
+        const outputsize = interval === 'daily' ? 100 : 5000;
+        const url = `${this.TWELVE_DATA_BASE}/time_series?symbol=${symbol}&interval=${tdInterval}&outputsize=${outputsize}&apikey=${this.TWELVE_DATA_KEY}`;
 
         let response;
         try {
             response = await axios.get(url);
         } catch (error) {
-            console.log(`Alpha Vantage API error for ${symbol}:${interval} ->`, error.code);
-            throw new Error(`Alpha Vantage rate limit hit. Try again tomorrow or use daily interval.`);
+            console.log(`Twelve Data API error for ${symbol}:${interval} ->`, error.code);
+            throw new Error(`Twelve Data request failed. Try again shortly.`);
         }
+
         const candles = this.parseCandles(response.data, interval);
 
         if (!candles.length) {
-            console.log(`Alpha Vantage response:`, JSON.stringify(response.data));
+            console.log(`Twelve Data response:`, JSON.stringify(response.data));
             return [];
         }
 
@@ -100,25 +99,21 @@ export class StocksService {
     }
 
     private parseCandles(data: any, interval: string) {
-    const key = interval === 'daily'
-        ? 'Time Series (Daily)'
-        : `Time Series (${interval})`;
+        const series = data.values;
+        if (!series) return [];
 
-    const series = data[key];
-    if (!series) return [];
-
-    return Object.entries(series)
-    .map(([time, values]: [string, any]) => ({
-        time: interval === 'daily'
-            ? time
-            : Math.floor(new Date(time).getTime() / 1000),
-        open:   parseFloat(values['1. open']),
-        high:   parseFloat(values['2. high']),
-        low:    parseFloat(values['3. low']),
-        close:  parseFloat(values['4. close']),
-        volume: parseFloat(values['5. volume']),
-    }))
-    .reverse();
+        return series
+            .map((v: any) => ({
+                time: interval === 'daily'
+                    ? v.datetime
+                    : Math.floor(new Date(v.datetime).getTime() / 1000),
+                open:   parseFloat(v.open),
+                high:   parseFloat(v.high),
+                low:    parseFloat(v.low),
+                close:  parseFloat(v.close),
+                volume: parseFloat(v.volume),
+            }))
+            .reverse(); // Twelve Data returns newest-first, same as Alpha Vantage did
     }
     @Cron(CronExpression.EVERY_5_MINUTES)
     async pollAndBroadcastPrices() {
